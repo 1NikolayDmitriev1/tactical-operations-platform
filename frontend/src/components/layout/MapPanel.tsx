@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { useAuth } from "../../context/AuthContext";
@@ -7,6 +8,7 @@ import { MapResizeController } from "../map/MapResizeController";
 import { TacticalIcon } from "../map/TacticalIcon";
 import { MapCameraController } from "../map/MapCameraController";
 import { MapClickController } from "../map/MapClickController";
+import { getPriorityStyle } from "../../utils/priorityColor";
 
 export function MapPanel() {
   const { isAuth } = useAuth();
@@ -14,6 +16,11 @@ export function MapPanel() {
   const { activeTile, showThreatZones, showMarkers } = useMapLayers();
 
   const currentTile = TILE_CONFIGS[activeTile];
+
+  const geoTasks = useMemo(
+    () => tasks.filter((t) => t.latitude && t.longitude),
+    [tasks],
+  );
 
   return (
     <section className="flex-1 relative z-0 flex items-center justify-center bg-zinc-950 overflow-hidden w-full h-full pb-14 md:pb-0">
@@ -38,36 +45,33 @@ export function MapPanel() {
         {/* Tactical Threat Density Zones (Heat Circles) */}
         {showThreatZones &&
           isAuth &&
-          tasks
-            .filter((t) => t.latitude && t.longitude)
-            .map((task) => {
-              const isCrit = task.priority === "critical";
-              const isHigh = task.priority === "high";
-              const radius = isCrit ? 900 : isHigh ? 600 : 350;
-              const color = isCrit ? "#ef4444" : isHigh ? "#f97316" : "#eab308";
+          geoTasks.map((task) => {
+            const style = getPriorityStyle(task.priority);
+            const isCrit = task.priority === "critical";
 
-              return (
-                <Circle
-                  key={`threat-${task.id}`}
-                  center={[task.latitude, task.longitude]}
-                  radius={radius}
-                  pathOptions={{
-                    color: color,
-                    fillColor: color,
-                    fillOpacity: isCrit ? 0.22 : 0.16,
-                    weight: 1.5,
-                    dashArray: isCrit ? "4 3" : undefined,
-                  }}
-                />
-              );
-            })}
+            return (
+              <Circle
+                key={`threat-${task.id}`}
+                center={[task.latitude, task.longitude]}
+                radius={style.radius}
+                pathOptions={{
+                  color: style.hex,
+                  fillColor: style.hex,
+                  fillOpacity: style.fillOpacity,
+                  weight: 1.5,
+                  dashArray: isCrit ? "4 3" : undefined,
+                }}
+              />
+            );
+          })}
 
         {/* Operational Task Markers */}
         {showMarkers &&
           isAuth &&
-          tasks
-            .filter((t) => t.latitude && t.longitude)
-            .map((task) => (
+          geoTasks.map((task) => {
+            const style = getPriorityStyle(task.priority);
+
+            return (
               <Marker
                 key={task.id}
                 position={[task.latitude, task.longitude]}
@@ -86,14 +90,7 @@ export function MapPanel() {
                     <div className="flex items-center justify-between text-[10px] mt-1.5 pt-1 border-t border-zinc-200">
                       <span
                         className="font-bold uppercase"
-                        style={{
-                          color:
-                            task.priority === "critical"
-                              ? "#dc2626"
-                              : task.priority === "high"
-                                ? "#ea580c"
-                                : "#ca8a04",
-                        }}
+                        style={{ color: style.hex }}
                       >
                         {task.priority}
                       </span>
@@ -104,7 +101,8 @@ export function MapPanel() {
                   </div>
                 </Popup>
               </Marker>
-            ))}
+            );
+          })}
       </MapContainer>
     </section>
   );

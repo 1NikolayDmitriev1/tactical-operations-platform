@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useLanguage } from "../../context/LanguageContext";
 import { useAccent } from "../../context/AccentContext";
+import { TACTICAL_INPUT_BASE } from "../../utils/styles";
 
 interface AuthFormProps {
   onSuccess?: () => void;
@@ -71,7 +72,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           placeholder={t.auth.callsignPlaceholder}
-          className={`w-full px-3 py-2 text-xs font-mono bg-zinc-950 border border-zinc-800 rounded text-zinc-100 placeholder:text-zinc-600 focus:outline-none ${theme.focusRing} transition-all`}
+          className={`${TACTICAL_INPUT_BASE} ${theme.focusRing}`}
         />
       </div>
 
@@ -84,7 +85,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder={t.auth.passwordPlaceholder}
-          className={`w-full px-3 py-2 text-xs font-mono bg-zinc-950 border border-zinc-800 rounded text-zinc-100 placeholder:text-zinc-600 focus:outline-none ${theme.focusRing} transition-all`}
+          className={`${TACTICAL_INPUT_BASE} ${theme.focusRing}`}
         />
       </div>
       {error && (

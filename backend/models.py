@@ -13,6 +13,7 @@ class Task(Base):
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    assigned_to = Column(Integer, ForeignKey("users.id"), nullable=True)
 
 
 class User(Base):
@@ -21,3 +22,5 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_name = Column(String, unique=True, index=True, nullable=False)
     password = Column(String, nullable=False)
+    role = Column(String, default="operator")
+

@@ -1,0 +1,32 @@
+# === Безопасность (Секреты) ===
+.env
+*.env
+!.env.example
+
+# === Frontend (Node / Vite) ===
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+*.local
+
+# === Backend (Python / FastAPI) ===
+venv/
+backend/venv/
+__pycache__/
+*/__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# === Модели и веса нейросетей (слишком тяжелые для Git) ===
+*.pt
+*.onnx
+*.weights
+backend/yolov8n.pt
+
+# === IDE & OS ===
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -118,7 +118,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
 export function useTask(): TaskContextType {
   const context = useContext(TaskContext);
   if (!context) {
-    throw new Error("useTask must be used within an TaskProvider");
+    throw new Error("useTask must be used within a TaskProvider");
   }
   return context;
 }

@@ -14,8 +14,6 @@ const STORAGE_KEY = "top_language";
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 function getInitialLanguage(): Language {
-  if (typeof window === "undefined") return "ua";
-
   const saved = localStorage.getItem(STORAGE_KEY) as Language | null;
   if (saved === "en" || saved === "ua") {
     return saved;

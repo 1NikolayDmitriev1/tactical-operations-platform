@@ -43,7 +43,7 @@ export function Header() {
             <button
               onClick={() => logout()}
               className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono font-semibold rounded border border-zinc-700/80 bg-zinc-800/70 hover:border-red-800 hover:bg-red-950/40 text-zinc-300 hover:text-red-300 transition-all cursor-pointer active:scale-95"
-              title="Terminate session"
+              title="Logout"
             >
               <LogOut className="w-3.5 h-3.5 text-zinc-400 hover:text-red-400 transition-colors" />
               <span>{t.header.logout}</span>
@@ -63,7 +63,7 @@ export function Header() {
 
         <div
           className="flex items-center bg-zinc-950/80 border border-zinc-800 rounded p-1 gap-1"
-          title="Tactical Accent Theme"
+          title="Theme"
         >
           {(["amber", "emerald", "neutral", "sky"] as AccentColor[]).map(
             (colorKey) => {

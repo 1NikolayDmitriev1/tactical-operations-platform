@@ -4,7 +4,7 @@ import type { Task } from "../../types";
 import { useTask } from "../../context/TaskContext";
 import { useLanguage } from "../../context/LanguageContext";
 import { useAccent } from "../../context/AccentContext";
-import { TACTICAL_INPUT_BASE, TACTICAL_SELECT_BASE } from "../../utils/styles";
+import { INPUT_BASE, SELECT_BASE } from "../../utils/styles";
 
 interface TaskFormProps {
   task?: Task | null;
@@ -78,7 +78,7 @@ export function TaskForm({ task, coords, onSuccess }: TaskFormProps) {
           value={formData.title}
           onChange={(e) => handleChange("title", e.target.value)}
           placeholder={t.modal.placeholderTitle}
-          className={`${TACTICAL_INPUT_BASE} ${theme.focusRing}`}
+          className={`${INPUT_BASE} ${theme.focusRing}`}
         />
       </div>
 
@@ -91,7 +91,7 @@ export function TaskForm({ task, coords, onSuccess }: TaskFormProps) {
           value={formData.description}
           onChange={(e) => handleChange("description", e.target.value)}
           placeholder={t.modal.placeholderDesc}
-          className={`${TACTICAL_INPUT_BASE} ${theme.focusRing}`}
+          className={`${INPUT_BASE} ${theme.focusRing}`}
         />
       </div>
 
@@ -102,7 +102,7 @@ export function TaskForm({ task, coords, onSuccess }: TaskFormProps) {
         <select
           value={formData.priority}
           onChange={(e) => handleChange("priority", e.target.value)}
-          className={`${TACTICAL_SELECT_BASE} ${theme.focusRing}`}
+          className={`${SELECT_BASE} ${theme.focusRing}`}
         >
           <option value="low">{t.priorities.low}</option>
           <option value="medium">{t.priorities.medium}</option>
@@ -122,7 +122,7 @@ export function TaskForm({ task, coords, onSuccess }: TaskFormProps) {
             required
             value={formData.latitude}
             onChange={(e) => handleChange("latitude", Number(e.target.value))}
-            className={`${TACTICAL_INPUT_BASE} ${theme.focusRing}`}
+            className={`${INPUT_BASE} ${theme.focusRing}`}
           />
         </div>
 
@@ -136,7 +136,7 @@ export function TaskForm({ task, coords, onSuccess }: TaskFormProps) {
             required
             value={formData.longitude}
             onChange={(e) => handleChange("longitude", Number(e.target.value))}
-            className={`${TACTICAL_INPUT_BASE} ${theme.focusRing}`}
+            className={`${INPUT_BASE} ${theme.focusRing}`}
           />
         </div>
       </div>

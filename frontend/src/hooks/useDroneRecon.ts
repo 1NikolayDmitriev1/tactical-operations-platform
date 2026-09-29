@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { BASE_URL } from "../api/client";
 
 export interface Detection {
   label: string;
@@ -44,9 +45,8 @@ export function useDroneRecon() {
       const t0 = performance.now();
       const formData = new FormData();
       formData.append("file", feed.file);
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
       const response = await fetch(
-        `${apiUrl}/ai/detect?confidence=${confidence}`,
+        `${BASE_URL}/ai/detect?confidence=${confidence}`,
         {
           method: "POST",
           body: formData,

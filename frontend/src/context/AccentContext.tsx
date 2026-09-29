@@ -84,7 +84,6 @@ const STORAGE_KEY = "top_accent_color";
 const AccentContext = createContext<AccentContextType | undefined>(undefined);
 
 function getInitialAccent(): AccentColor {
-  if (typeof window === "undefined") return "neutral";
   const saved = localStorage.getItem(STORAGE_KEY) as AccentColor | null;
   if (saved && saved in ACCENT_THEMES) {
     return saved;

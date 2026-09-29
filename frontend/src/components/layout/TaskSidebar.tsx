@@ -11,12 +11,7 @@ export function TaskSidebar() {
   const { t } = useLanguage();
   const { theme } = useAccent();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(() => {
-    if (typeof window !== "undefined") {
-      return window.innerWidth < 768;
-    }
-    return false;
-  });
+  const [isCollapsed, setIsCollapsed] = useState(() => window.innerWidth < 768);
 
   return (
     <>
@@ -44,7 +39,7 @@ export function TaskSidebar() {
           onClick={() => setIsCollapsed((prev) => !prev)}
           className={`hidden md:flex absolute -left-6 top-4 z-1001 w-6 h-12 bg-zinc-900/95 hover:bg-zinc-850 border-y border-l border-zinc-700 text-zinc-300 ${theme.hoverText} rounded-l items-center justify-center cursor-pointer transition-all shadow-2xl backdrop-blur-xs active:scale-95`}
           title={
-            isCollapsed ? "Expand Tactical Panel" : "Collapse Tactical Panel"
+            isCollapsed ? "Expand panel" : "Collapse panel"
           }
         >
           {isCollapsed ? (
@@ -92,19 +87,6 @@ export function TaskSidebar() {
                 <TaskList />
               ) : (
                 <div className="flex flex-col items-center justify-center text-center p-6 border border-zinc-800 bg-zinc-950/60 rounded-lg mt-4 relative overflow-hidden group">
-                  <div className="absolute top-2.5 left-2.5 text-[8px] font-mono text-zinc-600 select-none">
-                    ┌ SEC-01
-                  </div>
-                  <div className="absolute top-2.5 right-2.5 text-[8px] font-mono text-zinc-600 select-none">
-                    ┐
-                  </div>
-                  <div className="absolute bottom-2.5 left-2.5 text-[8px] font-mono text-zinc-600 select-none">
-                    └
-                  </div>
-                  <div className="absolute bottom-2.5 right-2.5 text-[8px] font-mono text-zinc-600 select-none">
-                    ┘
-                  </div>
-
                   <div className="w-12 h-12 rounded-full bg-red-950/40 border border-red-800/60 flex items-center justify-center text-red-400 mb-3">
                     <Lock className="w-5 h-5 text-red-400" />
                   </div>

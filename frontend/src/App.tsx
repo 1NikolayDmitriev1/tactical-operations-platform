@@ -11,29 +11,35 @@ import { LanguageProvider } from "./context/LanguageContext";
 import { AccentProvider } from "./context/AccentContext";
 import { MapLayersProvider } from "./context/MapLayersContext";
 
-export function App() {
+function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <LanguageProvider>
       <AccentProvider>
         <AuthProvider>
           <TaskProvider>
             <ModalProvider>
-              <MapLayersProvider>
-                <div className="h-screen flex flex-col bg-zinc-950 text-zinc-100 overflow-hidden">
-                  <Header />
-                  <main className="flex-1 flex overflow-hidden">
-                    <NavRail />
-                    <MapPanel />
-                    <TaskSidebar />
-                  </main>
-                  <TaskModal />
-                  <DroneReconModal />
-                </div>
-              </MapLayersProvider>
+              <MapLayersProvider>{children}</MapLayersProvider>
             </ModalProvider>
           </TaskProvider>
         </AuthProvider>
       </AccentProvider>
     </LanguageProvider>
+  );
+}
+
+export function App() {
+  return (
+    <AppProviders>
+      <div className="h-screen flex flex-col bg-zinc-950 text-zinc-100 overflow-hidden">
+        <Header />
+        <main className="flex-1 flex overflow-hidden">
+          <NavRail />
+          <MapPanel />
+          <TaskSidebar />
+        </main>
+        <TaskModal />
+        <DroneReconModal />
+      </div>
+    </AppProviders>
   );
 }

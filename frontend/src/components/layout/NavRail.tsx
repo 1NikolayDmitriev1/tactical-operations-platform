@@ -113,7 +113,6 @@ export function NavRail() {
         })}
       </aside>
 
-      {/* Floating Tactical Notification Toast */}
       {toastMsg && (
         <div className="fixed bottom-16 left-4 right-4 md:bottom-6 md:left-18 md:right-auto z-1002 px-3.5 py-2 rounded-lg bg-zinc-900/95 border border-zinc-700 text-zinc-200 text-xs font-mono shadow-2xl flex items-center gap-2 backdrop-blur-md animate-in fade-in slide-in-from-bottom-2 duration-200">
           <span className={`w-2 h-2 rounded-full ${theme.dotColor} animate-pulse`} />

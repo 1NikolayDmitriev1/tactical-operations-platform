@@ -35,14 +35,12 @@ export function MapPanel() {
         <MapResizeController />
         <MapCameraController />
 
-        {/* Dynamic Tile Layer Provider */}
         <TileLayer
           key={activeTile}
           attribution={currentTile.attribution}
           url={currentTile.url}
         />
 
-        {/* Tactical Threat Density Zones (Heat Circles) */}
         {showThreatZones &&
           isAuth &&
           geoTasks.map((task) => {
@@ -65,7 +63,6 @@ export function MapPanel() {
             );
           })}
 
-        {/* Operational Task Markers */}
         {showMarkers &&
           isAuth &&
           geoTasks.map((task) => {

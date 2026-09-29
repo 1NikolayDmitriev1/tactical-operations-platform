@@ -29,7 +29,6 @@ export function MapLayersWidget() {
 
   return (
     <div className="w-full bg-zinc-950/95 border border-zinc-700/80 rounded-xl shadow-2xl p-4 backdrop-blur-md text-zinc-100 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-200 select-none">
-      {/* Header */}
       <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
         <div className="flex items-center gap-2">
           <Layers size={16} className={theme.textAccent} />
@@ -51,7 +50,6 @@ export function MapLayersWidget() {
         </button>
       </div>
 
-      {/* 1. Base Tile Selection */}
       <div className="space-y-2">
         <span className="text-[10px] font-mono font-bold tracking-wider text-zinc-400 uppercase">
           {t.layersModal.baseProvider}
@@ -85,14 +83,12 @@ export function MapLayersWidget() {
         </div>
       </div>
 
-      {/* 2. Tactical Overlays */}
       <div className="space-y-2 pt-1 border-t border-zinc-800">
         <span className="text-[10px] font-mono font-bold tracking-wider text-zinc-400 uppercase">
           {t.layersModal.overlays}
         </span>
         
         <div className="space-y-1.5">
-          {/* Threat Density Zones Toggle */}
           <button
             type="button"
             onClick={() => setShowThreatZones((prev) => !prev)}
@@ -109,7 +105,6 @@ export function MapLayersWidget() {
             {showThreatZones ? <Eye size={14} className="text-emerald-400" /> : <EyeOff size={14} />}
           </button>
 
-          {/* Task Markers Toggle */}
           <button
             type="button"
             onClick={() => setShowMarkers((prev) => !prev)}

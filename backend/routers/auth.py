@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
 import bcrypt
@@ -27,7 +27,7 @@ def verify_token(authorization: Annotated[str | None, Header()] = None) -> dict:
     except jwt.ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token has expired. Please sign in again.",
+            detail="Token expired",
         )
     except jwt.InvalidTokenError:
         raise HTTPException(
@@ -42,7 +42,7 @@ def require_role(allowed_roles: list[str]):
         if user_role not in allowed_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Operation restricted. Requires role in: {allowed_roles}",
+                detail="Access denied",
             )
         return user
     return role_checker
@@ -58,7 +58,7 @@ def register_user(user_data: UserModel, db: DbSession):
     if existing:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="A user with this callsign is already registered",
+            detail="Callsign already taken",
         )
 
     salt = bcrypt.gensalt()
@@ -74,7 +74,7 @@ def register_user(user_data: UserModel, db: DbSession):
     db.refresh(new_user)
 
     return {
-        "message": "Operator registered successfully",
+        "message": "ok",
         "user": UserResponse.model_validate(new_user),
     }
 
@@ -103,14 +103,14 @@ def login_user(user_data: UserModel, db: DbSession):
             "id": user.id,
             "user_name": user.user_name,
             "role": user.role,
-            "exp": datetime.utcnow() + timedelta(hours=24),
+            "exp": datetime.now(timezone.utc) + timedelta(hours=24),
         },
         SECRET_KEY,
         algorithm="HS256",
     )
 
     return {
-        "message": "Authorization successful",
+        "message": "ok",
         "token": token,
         "user": UserResponse.model_validate(user),
     }
@@ -121,5 +121,4 @@ def get_operators(
     db: DbSession,
     user: Annotated[dict, Depends(verify_token)],
 ):
-    """List all registered operators for task assignment."""
     return db.query(models.User).all()

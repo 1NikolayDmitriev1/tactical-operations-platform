@@ -3,9 +3,10 @@ from typing import Annotated
 import models
 from database import get_db
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from routers.auth import require_role, verify_token
 from schemas import PartialTaskModel, TaskModel
 from sqlalchemy.orm import Session
+
+from routers.auth import require_role, verify_token
 
 router = APIRouter(prefix="/api/tasks", tags=["tasks"])
 DbSession = Annotated[Session, Depends(get_db)]
@@ -15,7 +16,9 @@ DbSession = Annotated[Session, Depends(get_db)]
 def get_tasks(
     db: DbSession,
     user: Annotated[dict, Depends(verify_token)],
-    assigned_to_me: bool = Query(False, description="Filter tasks assigned to the current operator"),
+    assigned_to_me: bool = Query(
+        False, description="Filter tasks assigned to the current operator"
+    ),
 ):
     query = db.query(models.Task)
     if assigned_to_me:
@@ -58,13 +61,13 @@ def update_task(
     user_role = user.get("role", "operator")
     update_data = task_data.model_dump(exclude_unset=True)
 
-    # RBAC logic: Operators can only change status or update tasks assigned to them
+    # operators cant change coords
     if user_role == "operator":
         disallowed_fields = {"latitude", "longitude", "assigned_to"}
         if any(f in update_data for f in disallowed_fields):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Operators are not authorized to modify tactical coordinates or assignments",
+                detail="Not allowed to change coordinates",
             )
 
     for key, value in update_data.items():
@@ -86,4 +89,4 @@ def delete_task(
         raise HTTPException(status_code=404, detail="Task not found")
     db.delete(task)
     db.commit()
-    return {"message": "Task successfully eliminated", "task_id": task_id}
+    return {"message": "Task deleted", "task_id": task_id}

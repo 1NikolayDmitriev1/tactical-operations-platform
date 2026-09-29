@@ -83,7 +83,7 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
               openModal("EDIT_TASK", { task });
             }}
             className={`p-1 text-zinc-500 ${theme.hoverText} hover:bg-zinc-800 rounded transition-colors cursor-pointer`}
-            title="Edit objective"
+            title="Edit"
           >
             <Pencil className="w-3.5 h-3.5" />
           </button>
@@ -94,7 +94,7 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
               deleteTask(task.id);
             }}
             className="p-1 text-zinc-500 hover:text-red-400 hover:bg-red-950/60 rounded transition-colors cursor-pointer"
-            title="Delete objective"
+            title="Delete"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
@@ -121,7 +121,7 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
             statusStyles[task.status]?.bg ||
             "bg-zinc-800 text-zinc-300 border-zinc-700"
           }`}
-          title="Click to advance status"
+          title="Change status"
         >
           <span
             className={`w-1.5 h-1.5 rounded-full ${

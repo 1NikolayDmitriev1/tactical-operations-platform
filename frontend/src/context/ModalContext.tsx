@@ -4,7 +4,6 @@ import { createContext, useContext, useState } from "react";
 export type ModalType =
   | "CREATE_TASK"
   | "EDIT_TASK"
-  | "CONFIRM_DELETE"
   | "DRONE_RECON"
   | null;
 

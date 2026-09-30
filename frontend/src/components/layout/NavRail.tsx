@@ -11,8 +11,9 @@ export function NavRail() {
   const { t } = useLanguage();
   const { openModal } = useModal();
   const { isLayersOpen, toggleLayers } = useMapLayers();
-  const [activeTab, setActiveTab] = useState<"map" | "recon" | "layers" | "sitrep">("map");
-  const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<
+    "map" | "recon" | "layers" | "sitrep"
+  >("map");
 
   const navItems = [
     {
@@ -49,15 +50,8 @@ export function NavRail() {
     } else if (id === "layers") {
       toggleLayers();
     } else if (id === "sitrep") {
-      showToast("📄 Operational Sitrep: Summary ready for export");
+      openModal("SITREP");
     }
-  };
-
-  const showToast = (msg: string) => {
-    setToastMsg(msg);
-    setTimeout(() => {
-      setToastMsg((prev) => (prev === msg ? null : prev));
-    }, 3500);
   };
 
   return (
@@ -65,10 +59,14 @@ export function NavRail() {
       <aside className="fixed bottom-0 inset-x-0 h-14 border-t border-zinc-800 bg-zinc-950/95 backdrop-blur-md flex flex-row items-center justify-around z-30 md:relative md:z-30 md:w-14 md:h-full md:border-t-0 md:border-r md:bg-zinc-900/60 md:flex-col md:py-4 md:gap-4 md:justify-start shrink-0 select-none">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = item.id === "layers" ? isLayersOpen : activeTab === item.id;
+          const isActive =
+            item.id === "layers" ? isLayersOpen : activeTab === item.id;
 
           return (
-            <div key={item.id} className="relative group flex items-center justify-center">
+            <div
+              key={item.id}
+              className="relative group flex items-center justify-center"
+            >
               <button
                 type="button"
                 onClick={() => handleNavClick(item.id)}
@@ -95,7 +93,7 @@ export function NavRail() {
               </button>
 
               {item.id === "layers" && isLayersOpen && (
-                <div className="fixed bottom-16 left-4 right-4 md:absolute md:left-full md:ml-3 md:top-0 md:bottom-auto md:w-76 z-[1002]">
+                <div className="fixed bottom-16 left-4 right-4 md:absolute md:left-full md:ml-3 md:top-0 md:bottom-auto md:w-76 z-1002">
                   <MapLayersWidget />
                 </div>
               )}
@@ -112,13 +110,6 @@ export function NavRail() {
           );
         })}
       </aside>
-
-      {toastMsg && (
-        <div className="fixed bottom-16 left-4 right-4 md:bottom-6 md:left-18 md:right-auto z-1002 px-3.5 py-2 rounded-lg bg-zinc-900/95 border border-zinc-700 text-zinc-200 text-xs font-mono shadow-2xl flex items-center gap-2 backdrop-blur-md animate-in fade-in slide-in-from-bottom-2 duration-200">
-          <span className={`w-2 h-2 rounded-full ${theme.dotColor} animate-pulse`} />
-          <span className="truncate">{toastMsg}</span>
-        </div>
-      )}
     </>
   );
 }

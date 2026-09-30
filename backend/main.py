@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers.auth import router as auth_router
 from routers.recon import router as recon_router
+from routers.sitrep import router as sitrep_router
 from routers.tasks import router as tasks_router
 
 load_dotenv()
@@ -35,6 +36,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(tasks_router)
 app.include_router(recon_router)
+app.include_router(sitrep_router)
 
 
 @app.get("/api/health", tags=["system"])

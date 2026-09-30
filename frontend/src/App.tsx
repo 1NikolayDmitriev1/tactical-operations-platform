@@ -4,6 +4,7 @@ import { MapPanel } from "./components/layout/MapPanel";
 import { TaskSidebar } from "./components/layout/TaskSidebar";
 import { TaskModal } from "./components/tasks/TaskModal";
 import { DroneReconModal } from "./components/recon/DroneReconModal";
+import { SitrepModal } from "./components/sitrep/SitrepModal";
 import { AuthProvider } from "./context/AuthContext";
 import { TaskProvider } from "./context/TaskContext";
 import { ModalProvider } from "./context/ModalContext";
@@ -39,6 +40,7 @@ export function App() {
         </main>
         <TaskModal />
         <DroneReconModal />
+        <SitrepModal />
       </div>
     </AppProviders>
   );

@@ -5,6 +5,7 @@ export type ModalType =
   | "CREATE_TASK"
   | "EDIT_TASK"
   | "DRONE_RECON"
+  | "SITREP"
   | null;
 
 interface ModalContextType {

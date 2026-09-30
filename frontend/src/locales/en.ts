@@ -106,6 +106,24 @@ export const en = {
     taskMarkers: "Task Markers",
     active: "ACTIVE",
   },
+  sitrepModal: {
+    title: "OPERATIONAL SITUATION REPORT // SITREP",
+    subtitle: "Field Operational Dispatch",
+    totalTargets: "TOTAL TARGETS",
+    critical: "CRITICAL",
+    inProgress: "IN PROGRESS",
+    completed: "COMPLETED",
+    previewTitle: "SITREP_DISPATCH_PREVIEW",
+    previewFormat: "UTF-8 // PLAIN TEXT",
+    generateAi: "AI GENERATE",
+    generating: "GENERATING...",
+    copyReport: "COPY TEXT",
+    copied: "COPIED TO CLIPBOARD",
+    downloadTxt: "DOWNLOAD .TXT",
+    close: "CLOSE",
+    emptyNotice: "No targets currently recorded on the operational map.",
+    errorAi: "AI service error. Check connection.",
+  },
 };
 
 export type TranslationSchema = typeof en;

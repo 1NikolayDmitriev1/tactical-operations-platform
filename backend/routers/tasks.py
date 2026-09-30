@@ -62,6 +62,7 @@ def update_task(
     update_data = task_data.model_dump(exclude_unset=True)
 
     # operators cant change coords
+    # todo: check task owner later
     if user_role == "operator":
         disallowed_fields = {"latitude", "longitude", "assigned_to"}
         if any(f in update_data for f in disallowed_fields):

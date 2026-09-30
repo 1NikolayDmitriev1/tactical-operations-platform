@@ -87,6 +87,7 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
           >
             <Pencil className="w-3.5 h-3.5" />
           </button>
+          {/* todo: only commander can delete */}
           <button
             type="button"
             onClick={(e) => {

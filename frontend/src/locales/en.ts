@@ -91,6 +91,8 @@ export const en = {
     noTargets: "NO TARGETS DETECTED",
     noTargetsHint: "Upload imagery and run detection",
     class: "TYPE",
+    deployToMap: "+ TO MAP",
+    targetDeployed: "Target plotted to map",
   },
   layersModal: {
     title: "MAP LAYERS & OVERLAYS",

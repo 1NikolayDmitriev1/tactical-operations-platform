@@ -1,8 +1,18 @@
 import { useState } from "react";
-import { Upload, Sliders, Cpu, Loader2, Target, RefreshCw } from "lucide-react";
+import {
+  Upload,
+  Sliders,
+  Cpu,
+  Loader2,
+  Target,
+  RefreshCw,
+  Plus,
+} from "lucide-react";
 import { useAccent } from "../../context/AccentContext";
 import { useLanguage } from "../../context/LanguageContext";
-import type { ReconMetrics } from "../../hooks/useDroneRecon";
+import type { Detection, ReconMetrics } from "../../hooks/useDroneRecon";
+import { useTask } from "../../context/TaskContext";
+import { useModal } from "../../context/ModalContext";
 
 interface DroneReconTelemetryProps {
   metrics: ReconMetrics;
@@ -23,11 +33,28 @@ export function DroneReconTelemetry({
 }: DroneReconTelemetryProps) {
   const { theme } = useAccent();
   const { t } = useLanguage();
-
+  const { closeModal } = useModal();
+  const { addTask } = useTask();
   const [confidence, setConfidence] = useState<number>(0.25);
 
   const { detections, inferenceTime, imageSize } = metrics;
+  const handleDeployToMap = async (target: Detection) => {
+    const latOffset = (Math.random() - 0.5) * 0.015;
+    const lngOffset = (Math.random() - 0.5) * 0.015;
 
+    const priority = target.confidence > 0.6 ? "critical" : "high";
+
+    await addTask({
+      title: `Ціль: ${target.label.toUpperCase()} (${Math.round(target.confidence * 100)}%)`,
+      description: `Виявлено БПЛА Leleka. Клас YOLO: ${target.label}, точність: ${Math.round(target.confidence * 100)}%`,
+      priority,
+      status: "pending",
+      latitude: Number((48.46 + latOffset).toFixed(4)),
+      longitude: Number((35.04 + lngOffset).toFixed(4)),
+    });
+
+    closeModal();
+  };
   return (
     <aside className="w-full md:w-80 bg-zinc-900/60 flex flex-col shrink-0 overflow-y-auto divide-y divide-zinc-800/80">
       <div className="p-4 space-y-4">
@@ -144,24 +171,35 @@ export function DroneReconTelemetry({
             detections.map((target, idx) => (
               <div
                 key={idx}
-                className="p-2.5 rounded bg-zinc-900/90 border border-zinc-800/80 hover:border-zinc-700 flex items-center justify-between transition-colors"
+                className="p-2.5 rounded bg-zinc-900/90 border border-zinc-800/80 hover:border-zinc-700 flex flex-col gap-2 transition-colors"
               >
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-zinc-500 font-mono text-[10px]">
-                      #{idx + 1}
-                    </span>
-                    <span className="font-mono text-xs font-bold uppercase text-zinc-200">
-                      {target.label}
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-zinc-500 font-mono text-[10px]">
+                        #{idx + 1}
+                      </span>
+                      <span className="font-mono text-xs font-bold uppercase text-zinc-200">
+                        {target.label}
+                      </span>
+                    </div>
+                    <span className="text-[9px] font-mono text-zinc-500">
+                      {t.recon.class}: {target.class_id}
                     </span>
                   </div>
-                  <span className="text-[9px] font-mono text-zinc-500">
-                    {t.recon.class}: {target.class_id}
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                    {Math.round(target.confidence * 100)}%
                   </span>
                 </div>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30">
-                  {Math.round(target.confidence * 100)}%
-                </span>
+
+                <button
+                  type="button"
+                  onClick={() => handleDeployToMap(target)}
+                  className="w-full py-1.5 px-2 rounded bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-[0.98]"
+                >
+                  <Plus size={12} strokeWidth={2.5} />
+                  <span>{t.recon.deployToMap}</span>
+                </button>
               </div>
             ))
           )}

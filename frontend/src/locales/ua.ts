@@ -20,13 +20,13 @@ export const ua: TranslationSchema = {
     loginToCreate: "🔒 Увійдіть для створення",
     noObjectives: "Немає завдань за обраним фільтром",
     loading: "Завантаження оперативних даних...",
-    grid: "СІТКА",
+    grid: "КООРДИНАТИ",
     panelTitle: "Оперативні завдання",
     panelSubtitle: "ПАНЕЛЬ ЗАВДАНЬ",
     restrictedArea: "ОБМЕЖЕНИЙ ДОСТУП",
     opsecClearance: "Потрібна авторизація оператора",
     restrictedDesc:
-      "Координати цілей та оперативні завдання захищені. Авторизуйтесь за позивним для доступу до карти.",
+      "Координати цілей та оперативні завдання захищені. Авторизуйтеся за позивним для доступу до карти.",
     authenticate: "УВІЙТИ В СИСТЕМУ",
   },
   priorities: {
@@ -38,7 +38,7 @@ export const ua: TranslationSchema = {
   },
   status: {
     pending: "ОЧІКУЄ",
-    in_progress: "В РОБОТІ",
+    in_progress: "У РОБОТІ",
     completed: "ВИКОНАНО",
     cancelled: "СКАСОВАНО",
   },
@@ -55,7 +55,7 @@ export const ua: TranslationSchema = {
     fieldLng: "Довгота",
     deploy: "СТВОРИТИ ЗАВДАННЯ",
     saveChanges: "ЗБЕРЕГТИ ЗМІНИ",
-    placeholderTitle: "напр. Розвідка Сектора 4",
+    placeholderTitle: "напр. Розвідка Сектору 4",
     placeholderDesc: "Оперативні примітки, позивні, орієнтири...",
   },
   auth: {
@@ -72,7 +72,7 @@ export const ua: TranslationSchema = {
   },
   recon: {
     modalTitle: "АЕРОРОЗВІДКА // АНАЛІЗ ФОТОЗНІМКІВ",
-    statusStandby: "ГОТОВНІСТЬ // НЕЙРОМЕРЕЖА ПІДКЛЮЧЕНА",
+    statusStandby: "ГОТОВНІСТЬ // НЕЙРОМЕРЕЖА АКТИВНА",
     statusRunning: "ВИКОНУЄТЬСЯ РОЗПІЗНАВАННЯ...",
     targetsAcquiredPrefix: "ВИЯВЛЕНО:",
     targetsAcquiredSuffix: "ОБ'ЄКТІВ",
@@ -88,11 +88,13 @@ export const ua: TranslationSchema = {
     scanMetrics: "РЕЗУЛЬТАТИ АНАЛІЗУ",
     targets: "ЦІЛЕЙ",
     latency: "ЧАС ОБРОБКИ",
-    feedRes: "РОЗДІЛЬНІСТЬ:",
+    feedRes: "РОЗДІЛЬНА ЗДАТНІСТЬ:",
     acquiredTargets: "РОЗПІЗНАНІ ОБ'ЄКТИ",
     noTargets: "ЦІЛЕЙ НЕ ВИЯВЛЕНО",
     noTargetsHint: "Завантажте знімок та натисніть «Розпізнати цілі»",
     class: "ТИП",
+    deployToMap: "+ НА КАРТУ",
+    targetDeployed: "Ціль нанесено на карту",
   },
   layersModal: {
     title: "ШАРИ ТАКТИЧНОЇ КАРТИ",

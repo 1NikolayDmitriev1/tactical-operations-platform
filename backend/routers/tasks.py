@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from schemas import PartialTaskModel, TaskModel
 from sqlalchemy.orm import Session
 
-from routers.auth import require_role, verify_token
+from routers.auth import verify_token
 
 router = APIRouter(prefix="/api/tasks", tags=["tasks"])
 DbSession = Annotated[Session, Depends(get_db)]
@@ -20,7 +20,10 @@ def get_tasks(
         False, description="Filter tasks assigned to the current operator"
     ),
 ):
-    query = db.query(models.Task)
+    # TODO: role permissions
+    query = db.query(models.Task).filter(
+        (models.Task.user_id == user["id"]) | (models.Task.assigned_to == user["id"])
+    )
     if assigned_to_me:
         query = query.filter(models.Task.assigned_to == user["id"])
     return query.all()
@@ -58,19 +61,7 @@ def update_task(
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
 
-    user_role = user.get("role", "operator")
     update_data = task_data.model_dump(exclude_unset=True)
-
-    # operators cant change coords
-    # todo: check task owner later
-    if user_role == "operator":
-        disallowed_fields = {"latitude", "longitude", "assigned_to"}
-        if any(f in update_data for f in disallowed_fields):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Not allowed to change coordinates",
-            )
-
     for key, value in update_data.items():
         setattr(task, key, value)
 
@@ -82,12 +73,16 @@ def update_task(
 @router.delete("/{task_id}")
 def delete_task(
     task_id: int,
-    user: Annotated[dict, Depends(require_role(["commander"]))],
+    user: Annotated[dict, Depends(verify_token)],
     db: DbSession,
 ):
     task = db.get(models.Task, task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
+
+    if task.user_id != user["id"]:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+
     db.delete(task)
     db.commit()
     return {"message": "Task deleted", "task_id": task_id}

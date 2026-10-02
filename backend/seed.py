@@ -5,31 +5,38 @@ from sqlalchemy.orm import Session
 
 load_dotenv()
 
-from sqlalchemy import text
-from database import engine, SessionLocal, Base
 import models
+from database import Base, SessionLocal, engine
+from sqlalchemy import text
+
 
 def seed_database():
     print("Setting up schema...")
     Base.metadata.create_all(bind=engine)
 
-    # make sure new columns exist if db was created before we added them
+    # migrations for existing DBs
     with engine.connect() as conn:
-        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR DEFAULT 'operator';"))
-        conn.execute(text("ALTER TABLE tasks ADD COLUMN IF NOT EXISTS assigned_to INTEGER REFERENCES users(id);"))
+        conn.execute(
+            text(
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR DEFAULT 'operator';"
+            )
+        )
+        conn.execute(
+            text(
+                "ALTER TABLE tasks ADD COLUMN IF NOT EXISTS assigned_to INTEGER REFERENCES users(id);"
+            )
+        )
         conn.commit()
-    
+
     db: Session = SessionLocal()
     try:
         commander = db.query(models.User).filter_by(user_name="GHOST-7").first()
         if not commander:
             print("Creating user GHOST-7...")
             salt = bcrypt.gensalt()
-            hashed_pw = bcrypt.hashpw("tactical_pass".encode("utf-8"), salt).decode("utf-8")
+            hashed_pw = bcrypt.hashpw(b"tactical_pass", salt).decode("utf-8")
             commander = models.User(
-                user_name="GHOST-7",
-                password=hashed_pw,
-                role="commander"
+                user_name="GHOST-7", password=hashed_pw, role="commander"
             )
             db.add(commander)
             db.commit()
@@ -43,8 +50,8 @@ def seed_database():
             print(f"Adding demo tasks (found {existing_tasks} in db)...")
             seed_tasks = [
                 models.Task(
-                    title="Опорний пункт «Скеля»",
-                    description="Укріплений район оборони. Посилено розрахунком СПГ-9 та тепловізійним постом.",
+                    title="Strongpoint 'Skelya'",
+                    description="Fortified defensive position. Reinforced with SPG-9 anti-tank crew and thermal observation post.",
                     priority="high",
                     status="in_progress",
                     latitude=48.4682,
@@ -53,8 +60,8 @@ def seed_database():
                     assigned_to=commander.id,
                 ),
                 models.Task(
-                    title="Склад БК противника (виявлено БПЛА)",
-                    description="Зафіксовано активність вантажівок «Урал» та маскувальну сітку. Пріоритетна ціль для FPV-крила.",
+                    title="Enemy Ammo Depot (UAV Detected)",
+                    description="Spotted Ural truck logistics activity and camouflage netting. Priority strike target for FPV drone wing.",
                     priority="critical",
                     status="pending",
                     latitude=48.4750,
@@ -62,8 +69,8 @@ def seed_database():
                     user_id=commander.id,
                 ),
                 models.Task(
-                    title="Сектор повітряної розвідки #4",
-                    description="Черговий сектор патрулювання розвідувального БПЛА Leleka-100 на висоті 1200м.",
+                    title="Aerial Recon Sector #4",
+                    description="Routine patrol sector for Leleka-100 reconnaissance UAV at 1200m altitude.",
                     priority="medium",
                     status="in_progress",
                     latitude=48.4520,
@@ -72,8 +79,8 @@ def seed_database():
                     assigned_to=commander.id,
                 ),
                 models.Task(
-                    title="Позиція комплексу РЕБ «Поле-21»",
-                    description="Джерело активних завад супутникової навігації в радіусі 4 км. Вимагає дорозвідки.",
+                    title="EW Jamming Post 'Pole-21'",
+                    description="Active GNSS satellite navigation jamming source in 4km radius. Requires tactical pin-down and fires.",
                     priority="critical",
                     status="pending",
                     latitude=48.4510,
@@ -81,8 +88,8 @@ def seed_database():
                     user_id=commander.id,
                 ),
                 models.Task(
-                    title="Точка евакуації «Броня-1»",
-                    description="Основний маршрут відходу та медичної евакуації бронегруп під прикриттям посадки.",
+                    title="Medevac Point 'Armor-1'",
+                    description="Primary withdrawal and medical evacuation corridor for armored group under tree line cover.",
                     priority="low",
                     status="completed",
                     latitude=48.4380,
@@ -103,9 +110,10 @@ def seed_database():
     except Exception as e:
         db.rollback()
         print(f"seed failed: {e}")
-        raise e
+        raise
     finally:
         db.close()
+
 
 if __name__ == "__main__":
     seed_database()

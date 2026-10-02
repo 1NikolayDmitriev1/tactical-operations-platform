@@ -12,14 +12,23 @@ from routers.tasks import router as tasks_router
 
 load_dotenv()
 
+from sqlalchemy import text
+
 models.Base.metadata.create_all(bind=engine)
+# HACK: drop NOT NULL until proper alembic migrations are set up
+with engine.connect() as conn:
+    try:
+        conn.execute(text("ALTER TABLE tasks ALTER COLUMN latitude DROP NOT NULL;"))
+        conn.execute(text("ALTER TABLE tasks ALTER COLUMN longitude DROP NOT NULL;"))
+        conn.commit()
+    except Exception:
+        pass
 
 app = FastAPI(
     title="TOP API",
     version="1.0.0",
 )
 
-# cors
 allowed_origins = os.environ.get(
     "ALLOWED_ORIGINS",
     "http://localhost:5173,http://127.0.0.1:5173",

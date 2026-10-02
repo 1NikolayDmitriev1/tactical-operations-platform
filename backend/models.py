@@ -10,10 +10,12 @@ class Task(Base):
     description = Column(String, nullable=True)
     priority = Column(String, default="medium")
     status = Column(String, default="pending")
-    latitude = Column(Float, nullable=False)
-    longitude = Column(Float, nullable=False)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     assigned_to = Column(Integer, ForeignKey("users.id"), nullable=True)
+    # TODO: custom radius and expiration
+    # TODO: photo attachments
 
 
 class User(Base):

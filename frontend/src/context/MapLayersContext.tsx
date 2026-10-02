@@ -36,6 +36,8 @@ interface MapLayersContextType {
   setShowThreatZones: (show: boolean | ((prev: boolean) => boolean)) => void;
   showMarkers: boolean;
   setShowMarkers: (show: boolean | ((prev: boolean) => boolean)) => void;
+  showLabels: boolean;
+  setShowLabels: (show: boolean | ((prev: boolean) => boolean)) => void;
   isLayersOpen: boolean;
   toggleLayers: () => void;
 }
@@ -46,6 +48,7 @@ export function MapLayersProvider({ children }: { children: ReactNode }) {
   const [activeTile, setActiveTile] = useState<TileProviderType>("dark");
   const [showThreatZones, setShowThreatZones] = useState<boolean>(true);
   const [showMarkers, setShowMarkers] = useState<boolean>(true);
+  const [showLabels, setShowLabels] = useState<boolean>(true);
   const [isLayersOpen, setIsLayersOpen] = useState<boolean>(false);
 
   const toggleLayers = () => {
@@ -61,6 +64,8 @@ export function MapLayersProvider({ children }: { children: ReactNode }) {
         setShowThreatZones,
         showMarkers,
         setShowMarkers,
+        showLabels,
+        setShowLabels,
         isLayersOpen,
         toggleLayers,
       }}

@@ -19,7 +19,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [username, setUsername] = useState<string | null>(() =>
     localStorage.getItem("username"),
   );
-  // todo: save role here
+  // TODO: role system
   const isAuth = !!token;
 
   const login = async (

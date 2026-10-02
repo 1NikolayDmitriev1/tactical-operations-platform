@@ -8,11 +8,20 @@ export type ModalType =
   | "SITREP"
   | null;
 
+export interface PendingTargetDraft {
+  title: string;
+  description: string;
+  priority: "low" | "medium" | "high" | "critical";
+  id?: number;
+}
+
 interface ModalContextType {
   activeModal: ModalType;
   modalData: unknown;
+  pendingTarget: PendingTargetDraft | null;
   openModal: (type: ModalType, data?: unknown) => void;
   closeModal: () => void;
+  setPendingTarget: (target: PendingTargetDraft | null) => void;
 }
 
 const ModalContext = createContext<ModalContextType | undefined>(undefined);
@@ -20,6 +29,7 @@ const ModalContext = createContext<ModalContextType | undefined>(undefined);
 export function ModalProvider({ children }: { children: ReactNode }) {
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [modalData, setModalData] = useState<unknown>(null);
+  const [pendingTarget, setPendingTarget] = useState<PendingTargetDraft | null>(null);
 
   const openModal = (type: ModalType, data: unknown = null) => {
     setActiveModal(type);
@@ -36,8 +46,10 @@ export function ModalProvider({ children }: { children: ReactNode }) {
       value={{
         activeModal,
         modalData,
+        pendingTarget,
         openModal,
         closeModal,
+        setPendingTarget,
       }}
     >
       {children}

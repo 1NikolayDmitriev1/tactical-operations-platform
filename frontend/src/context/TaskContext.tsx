@@ -20,7 +20,7 @@ interface TaskContextType {
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
 export function TaskProvider({ children }: { children: ReactNode }) {
-  const { isAuth } = useAuth();
+  const { isAuth, token } = useAuth();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -51,7 +51,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       setTasks([]);
       setSelectedTask(null);
     }
-  }, [isAuth]);
+  }, [isAuth, token]);
 
   const addTask = async (task: Omit<Task, "id">) => {
     try {

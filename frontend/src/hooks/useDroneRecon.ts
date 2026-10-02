@@ -1,18 +1,6 @@
 import { useState } from "react";
 import { BASE_URL } from "../api/client";
-
-export interface Detection {
-  label: string;
-  confidence: number;
-  normalized_box: [number, number, number, number];
-  class_id: number;
-}
-
-export interface ReconMetrics {
-  detections: Detection[];
-  inferenceTime: number | null;
-  imageSize: { width: number; height: number } | null;
-}
+import type { VisionAnalysisResult } from "../types";
 
 export interface DroneFeed {
   file: File;
@@ -21,7 +9,7 @@ export interface DroneFeed {
 
 export function useDroneRecon() {
   const [feed, setFeed] = useState<DroneFeed | null>(null);
-  const [scanResult, setScanResult] = useState<ReconMetrics | null>(null);
+  const [result, setResult] = useState<VisionAnalysisResult | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,37 +19,32 @@ export function useDroneRecon() {
     }
     const previewUrl = URL.createObjectURL(file);
     setFeed({ file, previewUrl });
-    setScanResult(null);
+    setResult(null);
     setError(null);
   };
 
-  const analyze = async (confidence: number) => {
+  const analyze = async (lang: string = "ua") => {
     try {
-      if (!feed?.file) {
-        return;
-      }
+      if (!feed?.file) return;
       setIsLoading(true);
       setError(null);
-      const t0 = performance.now();
       const formData = new FormData();
       formData.append("file", feed.file);
       const response = await fetch(
-        `${BASE_URL}/ai/detect?confidence=${confidence}`,
+        `${BASE_URL}/ai/vision-analyze?lang=${lang}`,
         {
           method: "POST",
           body: formData,
         },
       );
-      const data = await response.json();
-
-      setScanResult({
-        detections: data.detections,
-        imageSize: data.image_size,
-        inferenceTime: Math.round(performance.now() - t0),
-      });
+      if (!response.ok) {
+        const errJson = await response.json().catch(() => ({}));
+        throw new Error(errJson.detail || `Vision AI error: ${response.status}`);
+      }
+      const data: VisionAnalysisResult = await response.json();
+      setResult(data);
     } catch (err) {
-      console.error("Request error", err);
-      setError(err instanceof Error ? err.message : "Inference error");
+      setError(err instanceof Error ? err.message : "Vision analysis failed");
     } finally {
       setIsLoading(false);
     }
@@ -72,13 +55,13 @@ export function useDroneRecon() {
       URL.revokeObjectURL(feed.previewUrl);
     }
     setFeed(null);
-    setScanResult(null);
+    setResult(null);
     setError(null);
   };
 
   return {
     feed,
-    scanResult,
+    result,
     isLoading,
     error,
     selectFile,

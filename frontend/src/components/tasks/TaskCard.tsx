@@ -44,17 +44,12 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
     },
   };
 
-  const statusCycle: Record<Task["status"], Task["status"]> = {
-    pending: "in_progress",
-    in_progress: "completed",
-    completed: "pending",
-    cancelled: "pending",
-  };
-
   const handleStatusToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const nextStatus = statusCycle[task.status] || "pending";
-    updateTask(task.id, { status: nextStatus });
+    let next: Task["status"] = "pending";
+    if (task.status === "pending") next = "in_progress";
+    else if (task.status === "in_progress") next = "completed";
+    updateTask(task.id, { status: next });
   };
 
   return (
@@ -87,7 +82,6 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
           >
             <Pencil className="w-3.5 h-3.5" />
           </button>
-          {/* todo: only commander can delete */}
           <button
             type="button"
             onClick={(e) => {
@@ -106,14 +100,22 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
         <p className="text-xs text-zinc-400 mb-3">{task.description}</p>
       )}
 
+      {/* TODO: photo preview */}
+
       <footer className="flex items-center justify-between border-t border-zinc-800/80 pt-2.5 mt-2">
         <div className="flex items-center gap-1.5 text-xs font-mono font-medium text-zinc-300">
           <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold">
             {t.tasks.grid}:
           </span>
-          <span className="tracking-tight text-zinc-200 bg-zinc-950/80 px-1.5 py-0.5 rounded border border-zinc-800/80">
-            {task.latitude.toFixed(4)}, {task.longitude.toFixed(4)}
-          </span>
+          {task.latitude != null && task.longitude != null ? (
+            <span className="tracking-tight text-zinc-200 bg-zinc-950/80 px-1.5 py-0.5 rounded border border-zinc-800/80">
+              {task.latitude.toFixed(4)}, {task.longitude.toFixed(4)}
+            </span>
+          ) : (
+            <span className="tracking-tight text-amber-400 bg-amber-950/30 px-1.5 py-0.5 rounded border border-amber-800/50 text-[10px] font-bold">
+              {t.recon.noCoordinatesBadge}
+            </span>
+          )}
         </div>
         <button
           type="button"

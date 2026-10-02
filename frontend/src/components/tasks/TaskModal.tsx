@@ -5,7 +5,7 @@ import { TaskForm } from "./TaskForm";
 import { Modal } from "../layout/Modal";
 
 interface TaskModalData {
-  task?: Task;
+  task?: Task | Partial<Task>;
   coords?: { lat: number; lng: number } | null;
 }
 
@@ -20,8 +20,8 @@ export function TaskModal() {
   const coords = data?.coords;
 
   const title = isEdit ? t.modal.editTitle : t.modal.createTitle;
-  const subtitle = isEdit
-    ? `${t.modal.targetId}: #${editingTask?.id}`
+  const subtitle = isEdit && "id" in (editingTask || {})
+    ? `${t.modal.targetId}: #${(editingTask as Task)?.id}`
     : coords
       ? `${t.modal.gridTarget}: ${coords.lat}, ${coords.lng}`
       : t.modal.manualGrid;

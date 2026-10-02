@@ -1,15 +1,12 @@
 import { useState } from "react";
 import { ChevronDown, Layers } from "lucide-react";
 import { TaskCard } from "./TaskCard";
-import type { Task } from "../../types";
 import { useAuth } from "../../context/AuthContext";
 import { useTask } from "../../context/TaskContext";
 import { useModal } from "../../context/ModalContext";
 import { useLanguage } from "../../context/LanguageContext";
 import { useAccent } from "../../context/AccentContext";
-import { TaskFilter } from "./TaskFilter";
-
-type PriorityFilter = "all" | Task["priority"];
+import { TaskFilter, type PriorityFilter, type StatusFilter } from "./TaskFilter";
 
 export function TaskList() {
   const { isAuth } = useAuth();
@@ -19,11 +16,13 @@ export function TaskList() {
   const { theme } = useAccent();
   const [isListOpen, setIsListOpen] = useState(true);
   const [filterPriority, setFilterPriority] = useState<PriorityFilter>("all");
+  const [filterStatus, setFilterStatus] = useState<StatusFilter>("all");
 
-  const filteredTasks =
-    filterPriority === "all"
-      ? tasks
-      : tasks.filter((t) => t.priority === filterPriority);
+  const filteredTasks = tasks.filter((task) => {
+    const matchPriority = filterPriority === "all" || task.priority === filterPriority;
+    const matchStatus = filterStatus === "all" || task.status === filterStatus;
+    return matchPriority && matchStatus;
+  });
 
   if (isLoading && tasks.length === 0)
     return (
@@ -64,7 +63,7 @@ export function TaskList() {
           <span
             className={`px-1.5 py-0.2 text-[10px] font-mono rounded ${theme.badge}`}
           >
-            {filterPriority === "all"
+            {filterPriority === "all" && filterStatus === "all"
               ? tasks.length
               : `${filteredTasks.length}/${tasks.length}`}
           </span>
@@ -88,6 +87,8 @@ export function TaskList() {
             isListOpen={isListOpen}
             filterPriority={filterPriority}
             setFilterPriority={setFilterPriority}
+            filterStatus={filterStatus}
+            setFilterStatus={setFilterStatus}
           />
 
           {filteredTasks.length === 0 ? (

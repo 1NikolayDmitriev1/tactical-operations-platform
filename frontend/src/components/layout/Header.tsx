@@ -39,7 +39,7 @@ export function Header() {
               <span className="font-bold text-emerald-200">
                 {username || "OPERATOR"}
               </span>
-              {/* todo: show role */}
+              {/* TODO: role badge */}
             </div>
             <button
               onClick={() => logout()}

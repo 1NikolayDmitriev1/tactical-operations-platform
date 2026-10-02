@@ -1,4 +1,4 @@
-import { Layers, X, Eye, EyeOff, Radio } from "lucide-react";
+import { Layers, X, Eye, EyeOff, Radio, Tag } from "lucide-react";
 import { useMapLayers, type TileProviderType } from "../../context/MapLayersContext";
 import { useAccent } from "../../context/AccentContext";
 import { useLanguage } from "../../context/LanguageContext";
@@ -11,6 +11,8 @@ export function MapLayersWidget() {
     setShowThreatZones,
     showMarkers,
     setShowMarkers,
+    showLabels,
+    setShowLabels,
     isLayersOpen,
     toggleLayers,
   } = useMapLayers();
@@ -119,6 +121,22 @@ export function MapLayersWidget() {
               <span className="text-[11px]">{t.layersModal.taskMarkers}</span>
             </div>
             {showMarkers ? <Eye size={14} className="text-emerald-400" /> : <EyeOff size={14} />}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowLabels((prev) => !prev)}
+            className={`w-full px-3 py-2 rounded-lg font-mono text-xs flex items-center justify-between transition-all cursor-pointer border ${
+              showLabels
+                ? "bg-zinc-900 border-zinc-700 text-zinc-200"
+                : "bg-zinc-900/30 border-zinc-800/60 text-zinc-500"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <Tag size={13} className={showLabels ? theme.textAccent : "text-zinc-600"} />
+              <span className="text-[11px]">{t.layersModal.taskTitles}</span>
+            </div>
+            {showLabels ? <Eye size={14} className="text-emerald-400" /> : <EyeOff size={14} />}
           </button>
         </div>
       </div>

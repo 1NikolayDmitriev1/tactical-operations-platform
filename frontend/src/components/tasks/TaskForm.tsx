@@ -1,39 +1,51 @@
 import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
+import { MapPin } from "lucide-react";
 import type { Task } from "../../types";
 import { useTask } from "../../context/TaskContext";
+import { useModal } from "../../context/ModalContext";
 import { useLanguage } from "../../context/LanguageContext";
 import { useAccent } from "../../context/AccentContext";
 import { INPUT_BASE, SELECT_BASE } from "../../utils/styles";
 
 interface TaskFormProps {
-  task?: Task | null;
+  task?: Task | Partial<Task> | null;
   coords?: { lat: number; lng: number } | null;
   onSuccess?: () => void;
 }
 
-const INITIAL_FORM: Omit<Task, "id" | "status"> = {
+interface TaskFormData {
+  title: string;
+  description: string;
+  priority: "low" | "medium" | "high" | "critical";
+  latitude: number | null;
+  longitude: number | null;
+}
+
+const INITIAL_FORM: TaskFormData = {
   title: "",
   description: "",
   priority: "medium",
-  latitude: 0,
-  longitude: 0,
+  latitude: null,
+  longitude: null,
 };
+
 export function TaskForm({ task, coords, onSuccess }: TaskFormProps) {
   const { addTask, updateTask } = useTask();
+  const { closeModal, setPendingTarget } = useModal();
   const { t } = useLanguage();
   const { theme } = useAccent();
-  const isEdit = Boolean(task);
-  const [formData, setFormData] = useState(INITIAL_FORM);
+  const isEdit = Boolean(task && "id" in task && (task as Task).id);
+  const [formData, setFormData] = useState<TaskFormData>(INITIAL_FORM);
 
   useEffect(() => {
     if (task) {
       setFormData({
-        title: task.title,
+        title: task.title || "",
         description: task.description || "",
-        priority: task.priority,
-        latitude: task.latitude,
-        longitude: task.longitude,
+        priority: task.priority || "medium",
+        latitude: typeof task.latitude === "number" ? task.latitude : (coords?.lat ?? null),
+        longitude: typeof task.longitude === "number" ? task.longitude : (coords?.lng ?? null),
       });
     } else if (coords) {
       setFormData({
@@ -47,21 +59,27 @@ export function TaskForm({ task, coords, onSuccess }: TaskFormProps) {
   }, [task, coords]);
 
   const handleChange = (
-    field: keyof typeof INITIAL_FORM,
-    value: string | number,
+    field: keyof TaskFormData,
+    value: string | number | null,
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (isEdit && task) {
-      await updateTask(task.id, formData);
+    const payload = {
+      ...formData,
+      latitude: typeof formData.latitude === "number" && !isNaN(formData.latitude) ? formData.latitude : null,
+      longitude: typeof formData.longitude === "number" && !isNaN(formData.longitude) ? formData.longitude : null,
+    };
+
+    if (isEdit && task && "id" in task && typeof task.id === "number") {
+      await updateTask(task.id, payload as Partial<Task>);
     } else {
       await addTask({
-        ...formData,
+        ...payload,
         status: "pending",
-      });
+      } as Omit<Task, "id">);
     }
     onSuccess?.();
   };
@@ -111,6 +129,28 @@ export function TaskForm({ task, coords, onSuccess }: TaskFormProps) {
         </select>
       </div>
 
+      <div className="flex items-center justify-between pt-1">
+        <span className="text-[11px] font-mono tracking-wider text-zinc-400 uppercase font-semibold">
+          {t.modal.gridTarget}
+        </span>
+        <button
+          type="button"
+          onClick={() => {
+            setPendingTarget({
+              title: formData.title,
+              description: formData.description,
+              priority: formData.priority,
+              id: isEdit && task && "id" in task ? (task as Task).id : undefined,
+            });
+            closeModal();
+          }}
+          className="text-xs font-mono text-amber-400 hover:text-amber-300 flex items-center gap-1 cursor-pointer transition-colors"
+        >
+          <MapPin size={13} />
+          <span>{t.modal.pickOnMap}</span>
+        </button>
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
           <label className="text-[11px] font-mono tracking-wider text-zinc-400 uppercase">
@@ -119,9 +159,14 @@ export function TaskForm({ task, coords, onSuccess }: TaskFormProps) {
           <input
             type="number"
             step="any"
-            required
-            value={formData.latitude}
-            onChange={(e) => handleChange("latitude", Number(e.target.value))}
+            placeholder="—"
+            value={formData.latitude ?? ""}
+            onChange={(e) =>
+              handleChange(
+                "latitude",
+                e.target.value === "" ? null : Number(e.target.value),
+              )
+            }
             className={`${INPUT_BASE} ${theme.focusRing}`}
           />
         </div>
@@ -133,13 +178,20 @@ export function TaskForm({ task, coords, onSuccess }: TaskFormProps) {
           <input
             type="number"
             step="any"
-            required
-            value={formData.longitude}
-            onChange={(e) => handleChange("longitude", Number(e.target.value))}
+            placeholder="—"
+            value={formData.longitude ?? ""}
+            onChange={(e) =>
+              handleChange(
+                "longitude",
+                e.target.value === "" ? null : Number(e.target.value),
+              )
+            }
             className={`${INPUT_BASE} ${theme.focusRing}`}
           />
         </div>
       </div>
+
+      {/* TODO: custom radius and photo upload */}
 
       <button
         type="submit"

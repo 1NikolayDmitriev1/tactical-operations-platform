@@ -4,17 +4,34 @@ import { useModal } from "../../context/ModalContext";
 
 export function MapClickController() {
   const { isAuth } = useAuth();
-  const { openModal } = useModal();
+  const { openModal, pendingTarget, setPendingTarget } = useModal();
 
   useMapEvents({
     click: (e) => {
       if (!isAuth) return;
-      openModal("CREATE_TASK", {
-        coords: {
-          lat: Number(e.latlng.lat.toFixed(6)),
-          lng: Number(e.latlng.lng.toFixed(6)),
-        },
-      });
+      const clickedCoords = {
+        lat: Number(e.latlng.lat.toFixed(6)),
+        lng: Number(e.latlng.lng.toFixed(6)),
+      };
+
+      if (pendingTarget) {
+        openModal("CREATE_TASK", {
+          task: {
+            title: pendingTarget.title,
+            description: pendingTarget.description,
+            priority: pendingTarget.priority,
+            latitude: clickedCoords.lat,
+            longitude: clickedCoords.lng,
+            id: pendingTarget.id,
+          },
+          coords: clickedCoords,
+        });
+        setPendingTarget(null);
+      } else {
+        openModal("CREATE_TASK", {
+          coords: clickedCoords,
+        });
+      }
     },
   });
 

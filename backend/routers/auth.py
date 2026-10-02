@@ -36,16 +36,7 @@ def verify_token(authorization: Annotated[str | None, Header()] = None) -> dict:
         )
 
 
-def require_role(allowed_roles: list[str]):
-    def role_checker(user: Annotated[dict, Depends(verify_token)]) -> dict:
-        user_role = user.get("role", "operator")
-        if user_role not in allowed_roles:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Access denied",
-            )
-        return user
-    return role_checker
+# TODO: role system
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
@@ -67,7 +58,6 @@ def register_user(user_data: UserModel, db: DbSession):
     new_user = models.User(
         user_name=user_data.user_name,
         password=hashed,
-        role=user_data.role,
     )
     db.add(new_user)
     db.commit()

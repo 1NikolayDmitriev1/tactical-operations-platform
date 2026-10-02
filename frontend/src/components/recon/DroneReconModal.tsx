@@ -11,22 +11,29 @@ export function DroneReconModal() {
   const { t } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { feed, scanResult, isLoading, error, selectFile, analyze, reset } =
-    useDroneRecon();
+  const {
+    feed,
+    result,
+    isLoading,
+    error,
+    selectFile,
+    analyze,
+    reset,
+  } = useDroneRecon();
+
+  const subtitle = isLoading
+    ? t.recon.statusRunning
+    : result
+      ? `${result.title} // [${result.priority.toUpperCase()}] (${result.detections.length} ${t.recon.targets})`
+      : t.recon.statusStandby;
 
   return (
     <Modal
       title={t.recon.modalTitle}
-      subtitle={
-        isLoading
-          ? t.recon.statusRunning
-          : scanResult && scanResult.detections.length > 0
-            ? `${t.recon.targetsAcquiredPrefix} ${scanResult.detections.length} ${t.recon.targetsAcquiredSuffix}`
-            : t.recon.statusStandby
-      }
+      subtitle={subtitle}
       isOpen={activeModal === "DRONE_RECON"}
       onClose={closeModal}
-      maxWidth="max-w-5xl"
+      maxWidth="max-w-[96vw] xl:max-w-7xl"
     >
       <input
         ref={fileInputRef}
@@ -39,23 +46,17 @@ export function DroneReconModal() {
         }}
       />
 
-      <div className="flex-1 flex flex-col md:flex-row overflow-hidden border border-zinc-800 rounded-lg bg-zinc-950 min-h-125 max-h-[72vh]">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden border border-zinc-800 rounded-xl bg-zinc-950 min-h-[600px] max-h-[85vh]">
         <DroneReconUploadBox
           previewUrl={feed?.previewUrl ?? null}
-          detections={scanResult?.detections ?? []}
+          detections={result?.detections ?? []}
           error={error}
           onBrowseClick={() => fileInputRef.current?.click()}
           onFileDrop={selectFile}
         />
 
         <DroneReconTelemetry
-          metrics={
-            scanResult ?? {
-              detections: [],
-              inferenceTime: null,
-              imageSize: null,
-            }
-          }
+          result={result}
           isLoading={isLoading}
           hasFile={!!feed}
           onAnalyze={analyze}

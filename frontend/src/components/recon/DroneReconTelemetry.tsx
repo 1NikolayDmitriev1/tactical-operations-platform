@@ -13,6 +13,7 @@ interface DroneReconTelemetryProps {
   result: VisionAnalysisResult | null;
   isLoading: boolean;
   hasFile: boolean;
+  previewUrl?: string | null;
   onAnalyze: (lang: string) => void;
   onReset: () => void;
   onBrowseClick: () => void;
@@ -22,6 +23,7 @@ export function DroneReconTelemetry({
   result,
   isLoading,
   hasFile,
+  previewUrl,
   onAnalyze,
   onReset,
   onBrowseClick,
@@ -73,6 +75,7 @@ export function DroneReconTelemetry({
       title: customTitle || result.title,
       description: customDesc || buildTaskDescription(result),
       priority: result.priority,
+      image_url: previewUrl,
     });
     closeModal();
   };
@@ -86,6 +89,7 @@ export function DroneReconTelemetry({
       status: "pending",
       latitude: hasValidCoords ? Number(latInput) : null,
       longitude: hasValidCoords ? Number(lngInput) : null,
+      image_url: previewUrl,
     });
     closeModal();
   };
@@ -106,6 +110,7 @@ export function DroneReconTelemetry({
       status: "pending",
       latitude: Number(latInput),
       longitude: Number(lngInput),
+      image_url: previewUrl,
     });
     closeModal();
   };

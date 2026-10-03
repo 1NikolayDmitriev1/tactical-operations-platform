@@ -20,6 +20,8 @@ export function MapClickController() {
             title: pendingTarget.title,
             description: pendingTarget.description,
             priority: pendingTarget.priority,
+            threat_radius: pendingTarget.threat_radius,
+            image_url: pendingTarget.image_url,
             latitude: clickedCoords.lat,
             longitude: clickedCoords.lng,
             id: pendingTarget.id,

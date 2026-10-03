@@ -13,6 +13,8 @@ export interface PendingTargetDraft {
   description: string;
   priority: "low" | "medium" | "high" | "critical";
   id?: number;
+  threat_radius?: number | null;
+  image_url?: string | null;
 }
 
 interface ModalContextType {

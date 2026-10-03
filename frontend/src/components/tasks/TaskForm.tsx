@@ -1,12 +1,13 @@
 import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
-import { MapPin } from "lucide-react";
 import type { Task } from "../../types";
 import { useTask } from "../../context/TaskContext";
 import { useModal } from "../../context/ModalContext";
 import { useLanguage } from "../../context/LanguageContext";
 import { useAccent } from "../../context/AccentContext";
 import { INPUT_BASE, SELECT_BASE } from "../../utils/styles";
+import { TaskPhotoUpload } from "./TaskPhotoUpload";
+import { TaskFormCoords } from "./TaskFormCoords";
 
 interface TaskFormProps {
   task?: Task | Partial<Task> | null;
@@ -20,6 +21,8 @@ interface TaskFormData {
   priority: "low" | "medium" | "high" | "critical";
   latitude: number | null;
   longitude: number | null;
+  threat_radius: number | null;
+  image_url: string | null;
 }
 
 const INITIAL_FORM: TaskFormData = {
@@ -28,6 +31,8 @@ const INITIAL_FORM: TaskFormData = {
   priority: "medium",
   latitude: null,
   longitude: null,
+  threat_radius: null,
+  image_url: null,
 };
 
 export function TaskForm({ task, coords, onSuccess }: TaskFormProps) {
@@ -46,6 +51,8 @@ export function TaskForm({ task, coords, onSuccess }: TaskFormProps) {
         priority: task.priority || "medium",
         latitude: typeof task.latitude === "number" ? task.latitude : (coords?.lat ?? null),
         longitude: typeof task.longitude === "number" ? task.longitude : (coords?.lng ?? null),
+        threat_radius: task.threat_radius ?? null,
+        image_url: task.image_url ?? null,
       });
     } else if (coords) {
       setFormData({
@@ -71,6 +78,7 @@ export function TaskForm({ task, coords, onSuccess }: TaskFormProps) {
       ...formData,
       latitude: typeof formData.latitude === "number" && !isNaN(formData.latitude) ? formData.latitude : null,
       longitude: typeof formData.longitude === "number" && !isNaN(formData.longitude) ? formData.longitude : null,
+      threat_radius: typeof formData.threat_radius === "number" && !isNaN(formData.threat_radius) ? formData.threat_radius : null,
     };
 
     if (isEdit && task && "id" in task && typeof task.id === "number") {
@@ -84,8 +92,20 @@ export function TaskForm({ task, coords, onSuccess }: TaskFormProps) {
     onSuccess?.();
   };
 
+  const handlePickOnMap = () => {
+    setPendingTarget({
+      title: formData.title,
+      description: formData.description,
+      priority: formData.priority,
+      threat_radius: formData.threat_radius,
+      image_url: formData.image_url,
+      id: isEdit && task && "id" in task ? (task as Task).id : undefined,
+    });
+    closeModal();
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3.5 mt-2">
       <div className="flex flex-col gap-1.5">
         <label className="text-[11px] font-mono tracking-wider text-zinc-400 uppercase">
           {t.modal.fieldTitle}
@@ -113,85 +133,65 @@ export function TaskForm({ task, coords, onSuccess }: TaskFormProps) {
         />
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <label className="text-[11px] font-mono tracking-wider text-zinc-400 uppercase">
-          {t.modal.fieldPriority}
-        </label>
-        <select
-          value={formData.priority}
-          onChange={(e) => handleChange("priority", e.target.value)}
-          className={`${SELECT_BASE} ${theme.focusRing}`}
-        >
-          <option value="low">{t.priorities.low}</option>
-          <option value="medium">{t.priorities.medium}</option>
-          <option value="high">{t.priorities.high}</option>
-          <option value="critical">{t.priorities.critical}</option>
-        </select>
-      </div>
-
-      <div className="flex items-center justify-between pt-1">
-        <span className="text-[11px] font-mono tracking-wider text-zinc-400 uppercase font-semibold">
-          {t.modal.gridTarget}
-        </span>
-        <button
-          type="button"
-          onClick={() => {
-            setPendingTarget({
-              title: formData.title,
-              description: formData.description,
-              priority: formData.priority,
-              id: isEdit && task && "id" in task ? (task as Task).id : undefined,
-            });
-            closeModal();
-          }}
-          className="text-xs font-mono text-amber-400 hover:text-amber-300 flex items-center gap-1 cursor-pointer transition-colors"
-        >
-          <MapPin size={13} />
-          <span>{t.modal.pickOnMap}</span>
-        </button>
-      </div>
-
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
           <label className="text-[11px] font-mono tracking-wider text-zinc-400 uppercase">
-            {t.modal.fieldLat}
+            {t.modal.fieldPriority}
           </label>
-          <input
-            type="number"
-            step="any"
-            placeholder="—"
-            value={formData.latitude ?? ""}
-            onChange={(e) =>
-              handleChange(
-                "latitude",
-                e.target.value === "" ? null : Number(e.target.value),
-              )
-            }
-            className={`${INPUT_BASE} ${theme.focusRing}`}
-          />
+          <select
+            value={formData.priority}
+            onChange={(e) => handleChange("priority", e.target.value)}
+            className={`${SELECT_BASE} ${theme.focusRing}`}
+          >
+            <option value="low">{t.priorities.low}</option>
+            <option value="medium">{t.priorities.medium}</option>
+            <option value="high">{t.priorities.high}</option>
+            <option value="critical">{t.priorities.critical}</option>
+          </select>
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-[11px] font-mono tracking-wider text-zinc-400 uppercase">
-            {t.modal.fieldLng}
+          <label className="text-[11px] font-mono tracking-wider text-zinc-400 uppercase truncate">
+            {t.modal.fieldThreatRadius}
           </label>
           <input
             type="number"
-            step="any"
-            placeholder="—"
-            value={formData.longitude ?? ""}
+            min="50"
+            max="50000"
+            step="50"
+            value={formData.threat_radius ?? ""}
             onChange={(e) =>
               handleChange(
-                "longitude",
-                e.target.value === "" ? null : Number(e.target.value),
+                "threat_radius",
+                e.target.value === "" ? null : Math.max(0, parseInt(e.target.value, 10)),
               )
             }
+            placeholder={t.modal.placeholderThreatRadius}
             className={`${INPUT_BASE} ${theme.focusRing}`}
           />
         </div>
       </div>
 
-      {/* TODO: custom radius and photo upload */}
+      <TaskFormCoords
+        latitude={formData.latitude}
+        longitude={formData.longitude}
+        onChangeLat={(val) => handleChange("latitude", val)}
+        onChangeLng={(val) => handleChange("longitude", val)}
+        onPickOnMap={handlePickOnMap}
+        focusRing={theme.focusRing}
+        gridTargetLabel={t.modal.gridTarget}
+        pickOnMapLabel={t.modal.pickOnMap}
+        latLabel={t.modal.fieldLat}
+        lngLabel={t.modal.fieldLng}
+      />
+
+      <TaskPhotoUpload
+        value={formData.image_url}
+        onChange={(url) => handleChange("image_url", url)}
+        fieldLabel={t.modal.fieldPhoto}
+        uploadLabel={t.modal.uploadPhoto}
+        removeLabel={t.modal.removePhoto}
+      />
 
       <button
         type="submit"

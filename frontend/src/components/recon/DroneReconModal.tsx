@@ -59,6 +59,7 @@ export function DroneReconModal() {
           result={result}
           isLoading={isLoading}
           hasFile={!!feed}
+          previewUrl={feed?.previewUrl ?? null}
           onAnalyze={analyze}
           onReset={reset}
           onBrowseClick={() => fileInputRef.current?.click()}

@@ -1,4 +1,5 @@
-import { Trash2, Pencil } from "lucide-react";
+import { useState } from "react";
+import { Camera, ChevronDown, Pencil, Trash2 } from "lucide-react";
 import type { Task, TaskCardProps } from "../../types";
 import { useTask } from "../../context/TaskContext";
 import { useModal } from "../../context/ModalContext";
@@ -10,6 +11,7 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
   const { openModal } = useModal();
   const { t } = useLanguage();
   const { theme } = useAccent();
+  const [showPhoto, setShowPhoto] = useState(false);
 
   const priorityStyles: Record<Task["priority"], string> = {
     critical: "bg-red-950/80 text-red-400 border-red-800",
@@ -100,10 +102,41 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
         <p className="text-xs text-zinc-400 mb-3">{task.description}</p>
       )}
 
-      {/* TODO: photo preview */}
+      {task.image_url && (
+        <div className="mb-2.5">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowPhoto((prev) => !prev);
+            }}
+            className="flex items-center justify-between w-full px-2.5 py-1.5 rounded bg-zinc-950/80 hover:bg-zinc-800 border border-zinc-800 text-[10px] font-mono font-medium text-zinc-300 hover:text-zinc-100 transition-colors cursor-pointer select-none"
+          >
+            <span className="flex items-center gap-1.5">
+              <Camera size={12} className={theme.textAccent} />
+              <span>{t.tasks.reconPhoto}</span>
+            </span>
+            <ChevronDown
+              size={12}
+              className={`text-zinc-500 transition-transform duration-200 ${
+                showPhoto ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+          {showPhoto && (
+            <div className="mt-1.5 rounded-lg overflow-hidden border border-zinc-800 bg-zinc-950 animate-in fade-in slide-in-from-top-1 duration-150">
+              <img
+                src={task.image_url}
+                alt={task.title}
+                className="w-full h-36 object-cover"
+              />
+            </div>
+          )}
+        </div>
+      )}
 
       <footer className="flex items-center justify-between border-t border-zinc-800/80 pt-2.5 mt-2">
-        <div className="flex items-center gap-1.5 text-xs font-mono font-medium text-zinc-300">
+        <div className="flex items-center gap-1.5 text-xs font-mono font-medium text-zinc-300 flex-wrap">
           <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold">
             {t.tasks.grid}:
           </span>
@@ -114,6 +147,11 @@ export function TaskCard({ task, isSelected, onClick }: TaskCardProps) {
           ) : (
             <span className="tracking-tight text-amber-400 bg-amber-950/30 px-1.5 py-0.5 rounded border border-amber-800/50 text-[10px] font-bold">
               {t.recon.noCoordinatesBadge}
+            </span>
+          )}
+          {task.threat_radius && (
+            <span className="tracking-tight text-zinc-400 bg-zinc-950/80 px-1.5 py-0.5 rounded border border-zinc-800/80 text-[10px]">
+              R: {task.threat_radius}m
             </span>
           )}
         </div>

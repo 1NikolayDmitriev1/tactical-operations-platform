@@ -29,18 +29,27 @@ app = FastAPI(
     version="1.0.0",
 )
 
-allowed_origins = os.environ.get(
+origins_env = os.environ.get(
     "ALLOWED_ORIGINS",
     "http://localhost:5173,http://127.0.0.1:5173",
-).split(",")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
 )
+if origins_env.strip() == "*":
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=False,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+else:
+    allowed_origins = [o.strip() for o in origins_env.split(",") if o.strip()]
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=allowed_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 app.include_router(auth_router)
 app.include_router(tasks_router)

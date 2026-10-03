@@ -77,8 +77,8 @@ export function MapPanel() {
 
       <MapContainer
         className={`w-full h-full ${pendingTarget ? "cursor-crosshair" : ""}`}
-        center={[48.46, 35.04]}
-        zoom={13}
+        center={[48.5, 31.5]}
+        zoom={6}
         scrollWheelZoom={true}
         style={{ minHeight: "100%", width: "100%" }}
       >

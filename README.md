@@ -15,8 +15,9 @@ C4ISR-style web dashboard for UAV operators and command posts. Tactical map + AI
 
 ## What it does
 
-- **Tactical map** — Leaflet with 3 tile layers (Esri dark, satellite, topo). Threat zones rendered as priority-coded circles around targets. Clicking a task in the sidebar flies the camera to its coordinates.
-- **Drone recon module** — Upload an aerial photo, Gemini Vision analyzes it: identifies military objects, draws bounding boxes with confidence scores, reads EXIF GPS from the image and plots the location on the map automatically.
+- **Tactical map** — Leaflet with 3 tile layers (Esri dark, satellite, topo). Priority-coded or custom threat radius per target. Clicking any threat circle or task smoothly glides the camera to coordinates and opens target details.
+- **Zone overlap resolution** — When threat radii intersect, clicks resolve to the nearest target center, and popups display quick-switch links to overlapping sectors.
+- **Drone recon & photo attachments** — Upload UAV aerial photos for Gemini Vision object detection with bounding boxes and EXIF GPS extraction. Attach photos directly to tasks with in-browser compression, collapsible previews in sidebar cards and map popups.
 - **SITREP generator** — Takes all targets from the map and generates a structured situation report (NATO/AFU format) via Gemini. Markdown preview, raw text editor, copy to clipboard, export as `.txt`.
 - **AI fallback chain** — If one Gemini model hits rate limits, the request automatically retries on the next one in the chain (`3.8-flash` → `3.5-flash` → `3.1-flash-lite`).
 - **Auth** — Callsign + password, bcrypt hashing, JWT tokens (24h).

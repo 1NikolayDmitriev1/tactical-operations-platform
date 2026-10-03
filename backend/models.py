@@ -1,5 +1,5 @@
 from database import Base
-from sqlalchemy import Column, Float, ForeignKey, Integer, String
+from sqlalchemy import Column, Float, ForeignKey, Integer, String, Text
 
 
 class Task(Base):
@@ -12,10 +12,10 @@ class Task(Base):
     status = Column(String, default="pending")
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
+    threat_radius = Column(Integer, nullable=True)
+    image_url = Column(Text, nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     assigned_to = Column(Integer, ForeignKey("users.id"), nullable=True)
-    # TODO: custom radius and expiration
-    # TODO: photo attachments
 
 
 class User(Base):

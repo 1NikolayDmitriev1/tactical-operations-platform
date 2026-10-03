@@ -20,6 +20,8 @@ with engine.connect() as conn:
     try:
         conn.execute(text("ALTER TABLE tasks ALTER COLUMN latitude DROP NOT NULL;"))
         conn.execute(text("ALTER TABLE tasks ALTER COLUMN longitude DROP NOT NULL;"))
+        conn.execute(text("ALTER TABLE tasks ADD COLUMN IF NOT EXISTS threat_radius INTEGER;"))
+        conn.execute(text("ALTER TABLE tasks ADD COLUMN IF NOT EXISTS image_url TEXT;"))
         conn.commit()
     except Exception:
         pass

@@ -41,6 +41,8 @@ def create_task(
         latitude=task.latitude,
         longitude=task.longitude,
         description=task.description,
+        threat_radius=task.threat_radius,
+        image_url=task.image_url,
         user_id=user["id"],
         assigned_to=task.assigned_to,
     )

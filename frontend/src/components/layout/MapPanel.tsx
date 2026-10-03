@@ -1,5 +1,6 @@
-import { useMemo } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Circle, Tooltip } from "react-leaflet";
+import { useMemo, useRef } from "react";
+import { MapContainer, TileLayer, Circle } from "react-leaflet";
+import L from "leaflet";
 import { Target, X } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 import { useAuth } from "../../context/AuthContext";
@@ -9,34 +10,18 @@ import { useLanguage } from "../../context/LanguageContext";
 import { useModal } from "../../context/ModalContext";
 import { useMapLayers, TILE_CONFIGS } from "../../context/MapLayersContext";
 import { MapResizeController } from "../map/MapResizeController";
-import { TacticalIcon } from "../map/TacticalIcon";
 import { MapCameraController } from "../map/MapCameraController";
 import { MapClickController } from "../map/MapClickController";
+import { TacticalMarkerItem } from "../map/TacticalMarkerItem";
 import { getPriorityStyle } from "../../utils/priorityColor";
-
-function getStatusBadge(status: string, label: string) {
-  let color = "bg-amber-950/80 text-amber-300 border-amber-700/60";
-  if (status === "in_progress") {
-    color = "bg-cyan-950/80 text-cyan-300 border-cyan-700/60";
-  } else if (status === "completed") {
-    color = "bg-emerald-950/80 text-emerald-300 border-emerald-700/60";
-  } else if (status === "cancelled") {
-    color = "bg-zinc-800 text-zinc-400 border-zinc-600";
-  }
-
-  return (
-    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${color}`}>
-      ● {label}
-    </span>
-  );
-}
 
 export function MapPanel() {
   const { isAuth } = useAuth();
-  const { tasks } = useTask();
+  const { tasks, selectedTask, setSelectedTask } = useTask();
   const { t } = useLanguage();
   const { pendingTarget, setPendingTarget } = useModal();
   const { activeTile, showThreatZones, showMarkers, showLabels } = useMapLayers();
+  const markerRefs = useRef<Record<number, L.Marker>>({});
 
   const currentTile = TILE_CONFIGS[activeTile];
 
@@ -48,6 +33,30 @@ export function MapPanel() {
       ),
     [tasks],
   );
+
+  const sortedThreatTasks = useMemo(() => {
+    return [...geoTasks].sort((a, b) => {
+      const radA =
+        a.threat_radius && a.threat_radius > 0
+          ? a.threat_radius
+          : getPriorityStyle(a.priority).radius;
+      const radB =
+        b.threat_radius && b.threat_radius > 0
+          ? b.threat_radius
+          : getPriorityStyle(b.priority).radius;
+      return radB - radA;
+    });
+  }, [geoTasks]);
+
+  const handleSelectTaskWithPopup = (
+    target: Task & { latitude: number; longitude: number },
+  ) => {
+    setSelectedTask(target);
+    const marker = markerRefs.current[target.id];
+    if (marker) {
+      marker.openPopup();
+    }
+  };
 
   return (
     <section className="flex-1 relative z-0 flex items-center justify-center bg-zinc-950 overflow-hidden w-full h-full pb-14 md:pb-0">
@@ -94,22 +103,65 @@ export function MapPanel() {
 
         {showThreatZones &&
           isAuth &&
-          geoTasks.map((task) => {
+          sortedThreatTasks.map((task) => {
             const style = getPriorityStyle(task.priority);
             const isCrit = task.priority === "critical";
+            const isSelected = selectedTask?.id === task.id;
+            const radius =
+              task.threat_radius && task.threat_radius > 0
+                ? task.threat_radius
+                : style.radius;
 
             return (
               <Circle
                 key={`threat-${task.id}`}
                 center={[task.latitude, task.longitude]}
-                // TODO: custom radius
-                radius={style.radius}
+                radius={radius}
                 pathOptions={{
-                  color: style.hex,
+                  color: isSelected ? "#ffffff" : style.hex,
                   fillColor: style.hex,
-                  fillOpacity: style.fillOpacity,
-                  weight: 1.5,
+                  fillOpacity: isSelected
+                    ? Math.min(0.4, style.fillOpacity * 1.8)
+                    : style.fillOpacity,
+                  weight: isSelected ? 2.5 : 1.5,
                   dashArray: isCrit ? "4 3" : undefined,
+                  className: "cursor-pointer",
+                }}
+                eventHandlers={{
+                  click: (e) => {
+                    L.DomEvent.stopPropagation(e);
+                    const clickLat = e.latlng.lat;
+                    const clickLng = e.latlng.lng;
+
+                    const covering = geoTasks.filter((t) => {
+                      const r =
+                        t.threat_radius && t.threat_radius > 0
+                          ? t.threat_radius
+                          : getPriorityStyle(t.priority).radius;
+                      const dLat = (t.latitude - clickLat) * 111320;
+                      const dLng =
+                        (t.longitude - clickLng) *
+                        (111320 * Math.cos((clickLat * Math.PI) / 180));
+                      return Math.hypot(dLat, dLng) <= r;
+                    });
+
+                    covering.sort((a, b) => {
+                      const distA = Math.hypot(
+                        (a.latitude - clickLat) * 111320,
+                        (a.longitude - clickLng) *
+                          (111320 * Math.cos((clickLat * Math.PI) / 180)),
+                      );
+                      const distB = Math.hypot(
+                        (b.latitude - clickLat) * 111320,
+                        (b.longitude - clickLng) *
+                          (111320 * Math.cos((clickLat * Math.PI) / 180)),
+                      );
+                      return distA - distB;
+                    });
+
+                    const best = covering[0] || task;
+                    handleSelectTaskWithPopup(best);
+                  },
                 }}
               />
             );
@@ -119,58 +171,25 @@ export function MapPanel() {
           isAuth &&
           geoTasks.map((task) => {
             const style = getPriorityStyle(task.priority);
-
             const statusKey = task.status as keyof typeof t.status;
             const statusLabel = t.status[statusKey] || task.status;
 
             return (
-              <Marker
+              <TacticalMarkerItem
                 key={task.id}
-                position={[task.latitude, task.longitude]}
-                icon={TacticalIcon(task.priority)}
-              >
-                {showLabels && (
-                  <Tooltip
-                    permanent
-                    direction="top"
-                    offset={[0, -18]}
-                    className="tactical-marker-tooltip"
-                  >
-                    {task.title}
-                  </Tooltip>
-                )}
-
-                <Popup>
-                  <div className="font-mono text-xs text-zinc-100 p-0.5 min-w-56">
-                    <div className="font-bold tracking-wider uppercase text-zinc-100 border-b border-zinc-800 pb-1.5 pr-7 flex items-center justify-between gap-2">
-                      <span className="truncate">{task.title}</span>
-                      <span
-                        className="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase shrink-0"
-                        style={{
-                          color: style.hex,
-                          backgroundColor: `${style.hex}18`,
-                          border: `1px solid ${style.hex}40`,
-                        }}
-                      >
-                        {task.priority}
-                      </span>
-                    </div>
-
-                    {task.description && (
-                      <div className="text-zinc-400 my-2 text-[11px] leading-relaxed">
-                        {task.description}
-                      </div>
-                    )}
-
-                    <div className="flex items-center justify-between text-[10px] mt-2 pt-1.5 border-t border-zinc-800">
-                      <span className="text-zinc-500 font-mono">
-                        {task.latitude.toFixed(4)}, {task.longitude.toFixed(4)}
-                      </span>
-                      {getStatusBadge(task.status, statusLabel)}
-                    </div>
-                  </div>
-                </Popup>
-              </Marker>
+                task={task}
+                style={style}
+                statusLabel={statusLabel}
+                showLabels={showLabels}
+                allTasks={geoTasks}
+                onRegisterMarker={(id, marker) => {
+                  markerRefs.current[id] = marker;
+                }}
+                onUnregisterMarker={(id) => {
+                  delete markerRefs.current[id];
+                }}
+                onSelectTask={handleSelectTaskWithPopup}
+              />
             );
           })}
       </MapContainer>

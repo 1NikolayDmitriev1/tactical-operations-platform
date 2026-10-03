@@ -6,7 +6,8 @@ export interface Task {
   status: "pending" | "in_progress" | "completed" | "cancelled";
   latitude?: number | null;
   longitude?: number | null;
-  // TODO: custom radius and photos
+  threat_radius?: number | null;
+  image_url?: string | null;
 }
 export interface TaskCardProps {
   task: Task;

@@ -9,7 +9,7 @@ class TaskModel(BaseModel):
     description: str | None = None
     latitude: float | None = None
     longitude: float | None = None
-    threat_radius: int | None = None
+    threat_radius: int | None = Field(default=None, ge=50, le=50000)
     image_url: str | None = None
     assigned_to: int | None = None
 
@@ -21,7 +21,7 @@ class PartialTaskModel(BaseModel):
     status: Literal["pending", "in_progress", "completed", "cancelled"] | None = None
     latitude: float | None = None
     longitude: float | None = None
-    threat_radius: int | None = None
+    threat_radius: int | None = Field(default=None, ge=50, le=50000)
     image_url: str | None = None
     assigned_to: int | None = None
 

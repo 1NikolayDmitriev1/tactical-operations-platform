@@ -64,7 +64,7 @@ export const ua: TranslationSchema = {
     clickMapToPlace: "Клікніть на карті для нанесення цілі:",
     cancelPick: "СКАСУВАТИ",
     fieldThreatRadius: "Радіус зони загрози (метри)",
-    placeholderThreatRadius: "напр. 500 (пусто = за пріоритетом)",
+    placeholderThreatRadius: "50 - 50000 м (пусто = за пріоритетом)",
     fieldPhoto: "Прикріплене фото розвідки",
     uploadPhoto: "Вибрати фото",
     removePhoto: "Видалити",
@@ -164,5 +164,10 @@ export const ua: TranslationSchema = {
     emptyNotice:
       "Оперативне зведення ще не згенеровано. Натисніть 'ЗГЕНЕРУВАТИ ЧЕРЕЗ ШІ' для автоматичного формування бойового донесення за даними нанесених цілей.",
     errorAi: "Помилка зв'язку з ШІ. Перевірте з'єднання або логи сервера.",
+  },
+  validation: {
+    minThreatRadius: "Значення має бути більше або дорівнює 50.",
+    maxThreatRadius: "Значення має бути менше або дорівнює 50000.",
+    requiredTitle: "Будь ласка, заповніть це поле.",
   },
 };

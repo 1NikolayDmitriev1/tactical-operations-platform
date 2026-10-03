@@ -1,13 +1,14 @@
 import type { FormEvent } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Task } from "../../types";
 import { useTask } from "../../context/TaskContext";
 import { useModal } from "../../context/ModalContext";
 import { useLanguage } from "../../context/LanguageContext";
 import { useAccent } from "../../context/AccentContext";
-import { INPUT_BASE, SELECT_BASE } from "../../utils/styles";
+import { INPUT_BASE } from "../../utils/styles";
 import { TaskPhotoUpload } from "./TaskPhotoUpload";
 import { TaskFormCoords } from "./TaskFormCoords";
+import { TaskPriorityRadius } from "./TaskPriorityRadius";
 
 interface TaskFormProps {
   task?: Task | Partial<Task> | null;
@@ -26,13 +27,8 @@ interface TaskFormData {
 }
 
 const INITIAL_FORM: TaskFormData = {
-  title: "",
-  description: "",
-  priority: "medium",
-  latitude: null,
-  longitude: null,
-  threat_radius: null,
-  image_url: null,
+  title: "", description: "", priority: "medium",
+  latitude: null, longitude: null, threat_radius: null, image_url: null,
 };
 
 export function TaskForm({ task, coords, onSuccess }: TaskFormProps) {
@@ -42,6 +38,13 @@ export function TaskForm({ task, coords, onSuccess }: TaskFormProps) {
   const { theme } = useAccent();
   const isEdit = Boolean(task && "id" in task && (task as Task).id);
   const [formData, setFormData] = useState<TaskFormData>(INITIAL_FORM);
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (titleInputRef.current) {
+      titleInputRef.current.setCustomValidity("");
+    }
+  }, [t]);
 
   useEffect(() => {
     if (task) {
@@ -74,11 +77,17 @@ export function TaskForm({ task, coords, onSuccess }: TaskFormProps) {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    const rawRadius = formData.threat_radius;
+    const threat_radius =
+      typeof rawRadius === "number" && !isNaN(rawRadius)
+        ? Math.min(50000, Math.max(50, Math.round(rawRadius)))
+        : null;
+
     const payload = {
       ...formData,
       latitude: typeof formData.latitude === "number" && !isNaN(formData.latitude) ? formData.latitude : null,
       longitude: typeof formData.longitude === "number" && !isNaN(formData.longitude) ? formData.longitude : null,
-      threat_radius: typeof formData.threat_radius === "number" && !isNaN(formData.threat_radius) ? formData.threat_radius : null,
+      threat_radius,
     };
 
     if (isEdit && task && "id" in task && typeof task.id === "number") {
@@ -111,10 +120,20 @@ export function TaskForm({ task, coords, onSuccess }: TaskFormProps) {
           {t.modal.fieldTitle}
         </label>
         <input
+          ref={titleInputRef}
           type="text"
           required
           value={formData.title}
           onChange={(e) => handleChange("title", e.target.value)}
+          onInvalid={(e) => {
+            const target = e.currentTarget;
+            if (target.validity.valueMissing) {
+              target.setCustomValidity(t.validation.requiredTitle);
+            } else {
+              target.setCustomValidity("");
+            }
+          }}
+          onInput={(e) => e.currentTarget.setCustomValidity("")}
           placeholder={t.modal.placeholderTitle}
           className={`${INPUT_BASE} ${theme.focusRing}`}
         />
@@ -133,44 +152,13 @@ export function TaskForm({ task, coords, onSuccess }: TaskFormProps) {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[11px] font-mono tracking-wider text-zinc-400 uppercase">
-            {t.modal.fieldPriority}
-          </label>
-          <select
-            value={formData.priority}
-            onChange={(e) => handleChange("priority", e.target.value)}
-            className={`${SELECT_BASE} ${theme.focusRing}`}
-          >
-            <option value="low">{t.priorities.low}</option>
-            <option value="medium">{t.priorities.medium}</option>
-            <option value="high">{t.priorities.high}</option>
-            <option value="critical">{t.priorities.critical}</option>
-          </select>
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[11px] font-mono tracking-wider text-zinc-400 uppercase truncate">
-            {t.modal.fieldThreatRadius}
-          </label>
-          <input
-            type="number"
-            min="50"
-            max="50000"
-            step="50"
-            value={formData.threat_radius ?? ""}
-            onChange={(e) =>
-              handleChange(
-                "threat_radius",
-                e.target.value === "" ? null : Math.max(0, parseInt(e.target.value, 10)),
-              )
-            }
-            placeholder={t.modal.placeholderThreatRadius}
-            className={`${INPUT_BASE} ${theme.focusRing}`}
-          />
-        </div>
-      </div>
+      <TaskPriorityRadius
+        priority={formData.priority}
+        threatRadius={formData.threat_radius}
+        onChangePriority={(priority) => handleChange("priority", priority)}
+        onChangeThreatRadius={(radius) => handleChange("threat_radius", radius)}
+        focusRing={theme.focusRing}
+      />
 
       <TaskFormCoords
         latitude={formData.latitude}

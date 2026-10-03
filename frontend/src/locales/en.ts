@@ -62,7 +62,7 @@ export const en = {
     clickMapToPlace: "Click on map to position target:",
     cancelPick: "CANCEL",
     fieldThreatRadius: "Threat Radius (meters)",
-    placeholderThreatRadius: "e.g. 500 (blank = auto by priority)",
+    placeholderThreatRadius: "50 - 50000 m (blank = default)",
     fieldPhoto: "Tactical Photo Attachment",
     uploadPhoto: "Choose Image",
     removePhoto: "Remove",
@@ -162,6 +162,11 @@ export const en = {
     emptyNotice:
       "No operational report compiled yet. Click 'AI GENERATE' below to synthesize a structured NATO/AFU standard SITREP from currently plotted targets.",
     errorAi: "AI service error. Check connection or backend logs.",
+  },
+  validation: {
+    minThreatRadius: "Value must be greater than or equal to 50.",
+    maxThreatRadius: "Value must be less than or equal to 50000.",
+    requiredTitle: "Please fill out this field.",
   },
 };
 

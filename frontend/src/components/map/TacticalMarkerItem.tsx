@@ -100,7 +100,7 @@ export function TacticalMarkerItem({
                 border: `1px solid ${style.hex}40`,
               }}
             >
-              {task.priority}
+              {t.priorities[task.priority] || task.priority}
             </span>
           </div>
 
